@@ -1,0 +1,126 @@
+{
+  "_note": "Editorial seed curation authored as Sam, so the initial demo ships with real judgement rather than keyword templates. The live runner re-curates with Claude (or the heuristic fallback) on its next run.",
+  "learnedPreferences": "Sam is a 2nd-year CompSci student in Brighton hunting for work. He rates events by hiring value first: graduate careers fairs and recruiter-facing events top everything. Relevant, high-calibre tech (AI/ML, React/Node/frontend, Python) and hackathons that produce portfolio work come next. He weighs travel and money hard as a student — Brighton events win on zero friction, London needs a strong reason, and paid conferences (React Advanced, NDC) are only worth it with a student/volunteer ticket. Beginner-pitched sessions are below his level as a participant, though free local ones can still be worth attending as a coach. PHP/UX are off his path and score low on relevance.",
+  "verdicts": {
+    "Bright Network FESTIVAL 2026 (Morning Entry)": {
+      "score": 92,
+      "decision": "keep",
+      "rationale": "This is the one to build the week around — the UK's biggest graduate careers fair, 80+ employers under one roof, and free for students like me. It's exactly what I'm trying to do: get in front of people who actually hire. Bring a stack of CVs and a plan of which stands to hit first.",
+      "expectedPayoff": "Face time with dozens of graduate employers, on-the-spot recruiter conversations, and realistically a referral or two."
+    },
+    "London Tech Job Fair 2026": {
+      "score": 87,
+      "decision": "keep",
+      "rationale": "Basically speed-dating with recruiters — employers are there specifically to meet and hire tech people, which is my exact goal. An evening slot makes the London trip an easy call. Turn up, talk to every relevant stand, follow up the next morning.",
+      "expectedPayoff": "Direct recruiter conversations and a pipeline of concrete roles to apply to with a warm contact already made."
+    },
+    "London AI, ML & Computer Vision Meetup": {
+      "score": 80,
+      "decision": "keep",
+      "rationale": "The soonest event and a strong one — cutting-edge AI/ML/CV talks at Imperial, free, hosted by Voxel51. AI is exactly the area I want to be credible in, and being in that room is worth the train up. First thing I'd book.",
+      "expectedPayoff": "Current AI/CV knowledge straight from practitioners, plus contacts in the London ML scene."
+    },
+    "London Machine Learning Meetup": {
+      "score": 78,
+      "decision": "keep",
+      "rationale": "One of Europe's biggest ML communities — past speakers literally include Bengio and Karpathy. Free, high-signal, and squarely in the credibility area I care about. The calibre of speaker and audience makes the London trip clearly worth it.",
+      "expectedPayoff": "Front-row exposure to serious ML work and a genuinely valuable network to be part of."
+    },
+    "NDC London 2027": {
+      "score": 76,
+      "decision": "keep",
+      "rationale": "A flagship, broad software-dev conference — multi-track over several days at the QEII Centre. The range means I'd learn a lot across the stack and meet serious developers, and it's a good name to have attended. Paid and a big time commitment, so it's an 'if the budget allows' rather than an easy yes.",
+      "expectedPayoff": "Wide, current dev knowledge and a high-calibre professional network — budget permitting."
+    },
+    "FFConf 2026": {
+      "score": 75,
+      "decision": "keep",
+      "rationale": "A proper, well-respected single-track frontend conference right here in Brighton, with an after-party built for networking. Frontend is squarely in my wheelhouse and 'in Brighton' means no travel or hotel — the standout paid event locally if the ticket's affordable.",
+      "expectedPayoff": "A day of high-quality frontend talks plus real conversations with working engineers at the after-party."
+    },
+    "IC Hack 2027 (annual student hackathon)": {
+      "score": 74,
+      "decision": "keep",
+      "rationale": "Imperial's DoCSoc runs what they call the UK's biggest student hackathon — 700+ students, free, big sponsors. Prestige plus portfolio plus a strong London network in one weekend. It's a way off (Jan) and tickets go fast, so the move is to set a reminder for when they release.",
+      "expectedPayoff": "A standout hackathon project, sponsor contacts, and a big cohort of ambitious students to know."
+    },
+    "BrightonPy — Python Meetup": {
+      "score": 73,
+      "decision": "keep",
+      "rationale": "Python's my strongest language and this is the local Python group, backed by Silicon Brighton and run by a data consultancy — so there are actual working data/Python people in the room, not just students. Easy yes: local, free, and on my turf technically.",
+      "expectedPayoff": "Direct contact with Brighton data/Python practitioners (Datacove among them) and sharper Python chat."
+    },
+    "HackSussex 2027 (annual student hackathon)": {
+      "score": 72,
+      "decision": "keep",
+      "rationale": "My own university's hackathon — 24 hours to ship something demoable, on campus, free, and beginner-welcoming. Hackathons are some of the best CV fuel I can get, and this one's zero-travel. Only catch is it's a way off (Feb), so it's a 'lock in nearer the time' rather than book-now.",
+      "expectedPayoff": "A finished project for my portfolio and a weekend building alongside other Sussex students and sponsors."
+    },
+    "React Advanced London 2026": {
+      "score": 70,
+      "decision": "keep",
+      "rationale": "The content is bang-on — advanced React with 40+ speakers and 800+ attendees — and React is core to what I build. The catch is the £540+ ticket, which is steep on a student budget. Only a yes if I can land a student, scholarship or volunteer ticket; at full price the job fairs give me more hiring value per pound.",
+      "expectedPayoff": "Deep React knowledge and a large, relevant engineer network — if I can get in cheaply."
+    },
+    "Async Brighton — Web Performance, End to End": {
+      "score": 71,
+      "decision": "keep",
+      "rationale": "Async is the most reliable meetup on my doorstep — a real talk (web performance this time, genuinely useful for my projects), free pizza, and a friendly Brighton crowd that's easy to actually talk to. Low effort, decent upside.",
+      "expectedPayoff": "A few familiar faces in the Brighton dev scene and a concrete performance technique I can apply to my own apps."
+    },
+    "techUK Cyber Innovation Den 2026": {
+      "score": 65,
+      "decision": "keep",
+      "rationale": "Cyber isn't my main focus, but this is a free afternoon of actual industry — SMEs pitching, expert judges, a networking lunch — rather than a student event, so the room skews professional. Worth it to meet industry people and see the cyber side, if the date's clear.",
+      "expectedPayoff": "Exposure to the UK cyber industry and a more senior networking crowd than most meetups."
+    },
+    "London Node.js User Group (LNUG)": {
+      "score": 64,
+      "decision": "keep",
+      "rationale": "Node and backend JS are bread-and-butter for me, and LNUG is a long-running, friendly monthly with real practitioners. London for a free evening meetup is a slightly harder sell than a Brighton one, but the crowd quality makes it worth it if I'm heading up anyway.",
+      "expectedPayoff": "Backend-JS practitioners worth knowing and talks I can apply directly to my projects."
+    },
+    "JavaScript Brighton — Monthly Meetup": {
+      "score": 63,
+      "decision": "keep",
+      "rationale": "Pure social JS meetup in a pub by the beach — no talks, just people. Not high-signal for recruiting, but it's local, free, and the low-pressure kind of thing where you actually build real relationships over a few months of showing up.",
+      "expectedPayoff": "Regulars in the Brighton JS scene who might tip me off about local roles down the line."
+    },
+    "JavaScript Monthly London (JSMonthly)": {
+      "score": 59,
+      "decision": "keep",
+      "rationale": "Solid, relevant JS meetup — but it's a fairly generic monthly and it's London for the evening. Fine to catch if I'm already in the city or the speaker line-up is strong that month; not worth a dedicated trip on its own.",
+      "expectedPayoff": "A few more London JS contacts; value depends heavily on who's speaking."
+    },
+    "London Python Meetup": {
+      "score": 58,
+      "decision": "keep",
+      "rationale": "Python's a strength of mine so the topic lands, but this one leans beginner-friendly and generic. Worth it if I'm in London anyway or want a low-key Python crowd — otherwise the London ML and BrightonPy events give me more per trip.",
+      "expectedPayoff": "Casual Python networking; modest given the beginner lean."
+    },
+    "UX Brighton 2026 — Emerging Methods": {
+      "score": 57,
+      "decision": "keep",
+      "rationale": "I'm a software engineer, not a designer, so this is off-centre for me — but it's a genuinely prestigious conference on my doorstep, and understanding how designers think is useful for any product role. Only worth the ticket price if I can go cheap or get a student rate.",
+      "expectedPayoff": "A broader view of product and design, plus some senior Brighton tech people in one room."
+    },
+    "PHP Sussex — Monthly Meetup": {
+      "score": 54,
+      "decision": "keep",
+      "rationale": "PHP isn't my stack and I've no plans to pick it up, so the technical pull is weak. It's local and free though, so on a quiet week it's harmless networking — but it wouldn't survive a clash with anything better.",
+      "expectedPayoff": "A few more local web-dev contacts; not much that's directly relevant to where I'm aiming."
+    },
+    "codebar Brighton — Free Coding Workshop": {
+      "score": 52,
+      "decision": "keep",
+      "rationale": "I'm past the being-coached stage, but codebar is worth going to as a coach — helping someone through their first project reads well and puts me next to the organisers and the host company's engineers (Octopus Energy for this one).",
+      "expectedPayoff": "A volunteering line for my CV and a foot in the door with a host company's team."
+    },
+    "codebar Brighton — Free Coding Workshop (September)": {
+      "score": 49,
+      "decision": "keep",
+      "rationale": "Same deal as the August codebar but hosted at MPB — only worth doubling up if I actually enjoyed coaching the first one, or specifically want the MPB connection. One codebar in the calendar is usually plenty.",
+      "expectedPayoff": "More coaching reps and a different host company's team to meet — marginal on top of the first."
+    }
+  }
+}

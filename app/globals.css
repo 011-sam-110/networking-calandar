@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* class-based dark mode (toggle by adding `.dark` on <html>) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f6f6f9;
+  --foreground: #14141c;
+  --card: #ffffff;
+  --card-foreground: #14141c;
+  --muted: #ececf2;
+  --muted-foreground: #63636f;
+  --border: #e4e4ec;
+  --input: #e4e4ec;
+  --ring: #6d5cf5;
+  --primary: #6d5cf5;
+  --primary-foreground: #ffffff;
+  --accent: #f0eeff;
+  --accent-foreground: #4636c9;
+
+  --success: #16a34a;
+  --danger: #e0345a;
+  --warning: #d97706;
+
+  /* region accents */
+  --brighton: #0ea5a4;
+  --london: #6d5cf5;
+  --uk: #d97706;
+}
+
+.dark {
+  --background: #0b0b12;
+  --foreground: #e8e8f0;
+  --card: #14141d;
+  --card-foreground: #e8e8f0;
+  --muted: #1d1d29;
+  --muted-foreground: #9a9aa8;
+  --border: #262633;
+  --input: #262633;
+  --ring: #8b7dff;
+  --primary: #8b7dff;
+  --primary-foreground: #0b0b12;
+  --accent: #1a1730;
+  --accent-foreground: #c3bbff;
+
+  --success: #34d399;
+  --danger: #fb7185;
+  --warning: #fbbf24;
+
+  --brighton: #2dd4bf;
+  --london: #8b7dff;
+  --uk: #fbbf24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-brighton: var(--brighton);
+  --color-london: var(--london);
+  --color-uk: var(--uk);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --radius: 0.75rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* subtle scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
