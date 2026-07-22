@@ -6,16 +6,13 @@
  * 0-100, decides keep/drop, and writes a short "why go, as Sam" rationale plus
  * an expected payoff.
  *
- * Two providers implement the same {@link CurationProvider} contract:
- *   - "claude-curator" — real Claude call (when ANTHROPIC_API_KEY is set)
- *   - "heuristic"      — deterministic keyword/region/history scoring
- *
- * The real provider always falls back to the heuristic scoring on any API or
- * parse error, and both providers always return exactly one verdict per
- * candidate key passed in. `curate` never throws.
+ * NOTE: the primary curation is done by Claude Code itself (the scheduled
+ * scout) using its own judgement — there is no model API call in this project.
+ * This module is a deterministic keyword/region/history heuristic, kept only as
+ * an offline fallback for the seed. It returns one verdict per candidate and
+ * never throws.
  */
 
-import Anthropic from '@anthropic-ai/sdk';
 import type {
   AttendanceHistoryItem,
   CurationCandidate,
@@ -28,288 +25,17 @@ import type {
 /** Scores strictly below this are dropped by the heuristic / fallback logic. */
 const DROP_THRESHOLD = 40;
 
-/** Default model when CURATION_MODEL is not set. */
-const DEFAULT_MODEL = 'claude-opus-4-8';
-
 // ---------------------------------------------------------------------------
 // Public entry point
 // ---------------------------------------------------------------------------
 
 export function getCurationProvider(): CurationProvider {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (apiKey && apiKey.trim().length > 0) {
-    return createClaudeCurator();
-  }
+  // Discovery and curation are performed by Claude Code (the scheduled scout)
+  // using its own web search and judgement — there is no model API call here.
+  // This heuristic is only an offline fallback used by the seed for any event
+  // that lacks an editorial verdict.
   return createHeuristicProvider();
 }
-
-// ---------------------------------------------------------------------------
-// Real provider — "claude-curator"
-// ---------------------------------------------------------------------------
-
-const CURATOR_SYSTEM_PROMPT = [
-  "You ARE Sam: a second-year Computer Science student based in Brighton, UK.",
-  "You are a prolific builder — you ship lots of small software projects — you are",
-  "aiming for a job at a big-tech company or a strong software-engineering role, and",
-  "you are QA-curious. Right now you are deciding which networking / tech events are",
-  "actually worth your time.",
-  "",
-  "You are ruthlessly practical. Judge every candidate event through ONE lens:",
-  '"Will going to this get me a job, a referral, or a genuinely useful professional',
-  'connection?"',
-  "",
-  "Weight your judgement by:",
-  "- Career / recruiting value: graduate schemes, internships, hiring events, career",
-  "  fairs, recruiter presence, hackathons (great for portfolio AND meeting engineers),",
-  "  founder / engineering meetups. These score highest.",
-  "- Relevance to software / CS: software engineering, web, AI/ML, data, cloud, dev",
-  "  tooling, cybersecurity, startups, QA/testing. Tangential or non-technical events",
-  "  score low.",
-  "- Travel cost: you live in Brighton. Brighton & Sussex events are cheap to reach and",
-  "  score highest. London events are worth the ~1hr train when the payoff is real.",
-  "  Events elsewhere in the UK need a high payoff (travel/stay-over) to be worth it.",
-  "- Your learned preferences and your own attendance history (given below). If you",
-  "  crossed off (did not attend) an event or wrote something negative about a type of",
-  "  event, DOWN-WEIGHT similar candidates. If you ticked one off or wrote something",
-  "  positive, UP-WEIGHT similar candidates.",
-  "",
-  "Score each candidate 0-100. Drop clearly-irrelevant or low-value events — a score",
-  "below 40 is a reasonable drop threshold, but use your judgement. Keep the ones",
-  "genuinely worth Sam's time.",
-  "",
-  "Respond with STRICT JSON ONLY — no prose, no markdown fences — matching exactly:",
-  '{"verdicts":[{"key":"<candidate key>","score":<integer 0-100>,"decision":"keep"|"drop","rationale":"<short first-person why-go-as-Sam>","expectedPayoff":"<what Sam concretely gets>"}],"updatedLearnedPreferences":"<one refreshed paragraph of what Sam values / avoids in events>"}',
-  "",
-  "Rules: include EXACTLY ONE verdict per candidate. Every verdict.key MUST equal the",
-  "key of the candidate it refers to. Write rationale and expectedPayoff in Sam's own",
-  "first-person voice and reference the actual event.",
-].join('\n');
-
-function createClaudeCurator(): CurationProvider {
-  const model = process.env.CURATION_MODEL?.trim() || DEFAULT_MODEL;
-
-  return {
-    name: 'claude-curator',
-
-    async curate(
-      candidates: CurationCandidate[],
-      ctx: CurationContext,
-    ): Promise<CurationResult> {
-      if (candidates.length === 0) {
-        return {
-          verdicts: [],
-          updatedLearnedPreferences: ctx.learnedPreferences,
-          model,
-        };
-      }
-
-      try {
-        const client = new Anthropic();
-        // Stream so a large max_tokens (with adaptive thinking) can't hit the
-        // SDK's HTTP timeout; finalMessage() aggregates the whole response.
-        const message = await client.messages
-          .stream({
-            model,
-            max_tokens: 16000,
-            thinking: { type: 'adaptive' },
-            output_config: { effort: 'medium' },
-            system: CURATOR_SYSTEM_PROMPT,
-            messages: [{ role: 'user', content: buildUserPrompt(candidates, ctx) }],
-          })
-          .finalMessage();
-
-        const text = message.content
-          .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-          .map((b) => b.text)
-          .join('\n');
-
-        const parsed = extractJsonObject(text);
-        if (!parsed) {
-          return heuristicCurate(candidates, ctx, 'heuristic-fallback');
-        }
-        return reconcileVerdicts(parsed, candidates, ctx, model);
-      } catch {
-        // Any API / network / parse failure → deterministic fallback so the
-        // run still produces a verdict for every candidate.
-        return heuristicCurate(candidates, ctx, 'heuristic-fallback');
-      }
-    },
-  };
-}
-
-function buildUserPrompt(candidates: CurationCandidate[], ctx: CurationContext): string {
-  const payload = {
-    myPersona: ctx.personaHeadline,
-    myGoals: ctx.goals,
-    myLearnedPreferences: ctx.learnedPreferences?.trim() || '(none recorded yet)',
-    myPastEventHistory:
-      ctx.history.length > 0
-        ? ctx.history.map((h) => ({
-            title: h.title,
-            startAt: h.startAt,
-            region: h.region,
-            tags: h.tags,
-            flaggedGoing: h.going,
-            outcome:
-              h.attended === null
-                ? 'unknown'
-                : h.attended
-                  ? 'attended (ticked off)'
-                  : 'did NOT attend (crossed off)',
-            myNotes: h.notes,
-          }))
-        : '(no history yet)',
-    candidatesToJudge: candidates.map((c) => ({
-      key: c.key,
-      title: c.title,
-      startAt: c.startAt,
-      region: c.region,
-      city: c.city ?? null,
-      organizer: c.organizer ?? null,
-      price: c.price ?? null,
-      tags: c.tags,
-      description: c.description,
-    })),
-  };
-
-  return [
-    'Here is who I am, what I want, what I have learned, my past event outcomes, and',
-    'the candidate events to judge. Produce exactly one verdict per candidate key.',
-    '',
-    JSON.stringify(payload, null, 2),
-    '',
-    'Return the STRICT JSON now.',
-  ].join('\n');
-}
-
-// ---------------------------------------------------------------------------
-// Robust JSON extraction
-// ---------------------------------------------------------------------------
-
-/** Parse a JSON object out of model text even if wrapped in prose or fences. */
-function extractJsonObject(text: string): Record<string, unknown> | null {
-  if (!text) return null;
-  const trimmed = text.trim();
-
-  // 1. Direct parse.
-  const direct = tryParse(trimmed);
-  if (direct) return direct;
-
-  // 2. Fenced ```json ... ``` (or bare ``` ... ```) block.
-  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
-  if (fence) {
-    const fenced = tryParse(fence[1].trim());
-    if (fenced) return fenced;
-  }
-
-  // 3. First balanced {...} span anywhere in the text.
-  const balanced = extractBalancedObject(trimmed);
-  if (balanced) {
-    const obj = tryParse(balanced);
-    if (obj) return obj;
-  }
-
-  return null;
-}
-
-function tryParse(s: string): Record<string, unknown> | null {
-  try {
-    const v = JSON.parse(s);
-    return v && typeof v === 'object' && !Array.isArray(v)
-      ? (v as Record<string, unknown>)
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-/** Return the first brace-balanced object substring, respecting JSON strings. */
-function extractBalancedObject(text: string): string | null {
-  const start = text.indexOf('{');
-  if (start === -1) return null;
-
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
-
-  for (let i = start; i < text.length; i++) {
-    const ch = text[i];
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (ch === '\\') escaped = true;
-      else if (ch === '"') inString = false;
-      continue;
-    }
-    if (ch === '"') inString = true;
-    else if (ch === '{') depth++;
-    else if (ch === '}') {
-      depth--;
-      if (depth === 0) return text.slice(start, i + 1);
-    }
-  }
-  return null;
-}
-
-/**
- * Map the parsed model output back onto the full candidate set. Uses the model's
- * verdict where a matching key exists (validated / clamped); otherwise fills the
- * gap with a heuristic verdict. Guarantees exactly one verdict per candidate.
- */
-function reconcileVerdicts(
-  parsed: Record<string, unknown>,
-  candidates: CurationCandidate[],
-  ctx: CurationContext,
-  model: string,
-): CurationResult {
-  const byKey = new Map<string, Record<string, unknown>>();
-  const rawVerdicts = parsed.verdicts;
-  if (Array.isArray(rawVerdicts)) {
-    for (const raw of rawVerdicts) {
-      if (raw && typeof raw === 'object' && typeof (raw as { key?: unknown }).key === 'string') {
-        byKey.set((raw as { key: string }).key, raw as Record<string, unknown>);
-      }
-    }
-  }
-
-  const verdicts: CurationVerdict[] = candidates.map((c) => {
-    const raw = byKey.get(c.key);
-    return raw ? normalizeVerdict(raw, c) : heuristicVerdict(c, ctx);
-  });
-
-  const rawPrefs = parsed.updatedLearnedPreferences;
-  const updatedLearnedPreferences =
-    typeof rawPrefs === 'string' && rawPrefs.trim().length > 0
-      ? rawPrefs.trim()
-      : summarizeLearnedPreferences(ctx, verdicts);
-
-  return { verdicts, updatedLearnedPreferences, model };
-}
-
-function normalizeVerdict(raw: Record<string, unknown>, c: CurationCandidate): CurationVerdict {
-  const score = clampScore(raw.score);
-  let decision: 'keep' | 'drop';
-  if (raw.decision === 'keep' || raw.decision === 'drop') {
-    decision = raw.decision;
-  } else {
-    decision = score < DROP_THRESHOLD ? 'drop' : 'keep';
-  }
-
-  const rationale =
-    typeof raw.rationale === 'string' && raw.rationale.trim().length > 0
-      ? raw.rationale.trim()
-      : `Worth a second look at "${c.title}".`;
-
-  const expectedPayoff =
-    typeof raw.expectedPayoff === 'string' && raw.expectedPayoff.trim().length > 0
-      ? raw.expectedPayoff.trim()
-      : 'A potential professional connection or useful learning.';
-
-  return { key: c.key, score, decision, rationale, expectedPayoff };
-}
-
-// ---------------------------------------------------------------------------
-// Heuristic provider — "heuristic" (also the real provider's fallback)
-// ---------------------------------------------------------------------------
 
 function createHeuristicProvider(): CurationProvider {
   return {

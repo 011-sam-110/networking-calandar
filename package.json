@@ -10,12 +10,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx db/migrate.ts",
     "db:seed": "tsx runner/seed.ts",
-    "runner": "tsx runner/index.ts",
-    "runner:catchup": "tsx runner/index.ts --catchup",
+    "context": "tsx runner/context.ts",
+    "ingest": "tsx runner/ingest.ts",
+    "sync": "tsx runner/sync.ts",
     "google:auth": "tsx runner/google-auth.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.112.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",

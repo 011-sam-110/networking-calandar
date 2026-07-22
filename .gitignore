@@ -37,6 +37,7 @@ yarn-error.log*
 # runner secrets + output
 runner/.google-token.json
 runner/out/
+runner/scout-events.json
 
 # vercel
 .vercel

@@ -14,7 +14,7 @@ booking link for each.
 
 | Question | Decision |
 |---|---|
-| How are events discovered? | **Claude web-search only** (dropped the structured-API backbone). |
+| How are events discovered? | **Claude Code itself** (the scheduled "scout") web-searches - no model API key. Structured-API backbone dropped. |
 | Where's the calendar? | **In-app calendar** (feed + month) is primary; **one-way push** of "going" events to real Google Calendar. |
 | Compute location | **Local runner** on Sam's laptop (daily + catch-up on boot); Vercel hosts the UI. |
 | Geography | Brighton & Sussex, London, and occasional high-value UK. In-person only. |
@@ -25,10 +25,11 @@ booking link for each.
 
 Three components share one Postgres database; the runner and app never talk directly.
 
-- **Local runner** (TypeScript, run via `tsx` under Windows Task Scheduler): gap-detect →
-  Claude web-search discovery → verify booking links → upsert (idempotent on a dedupe
-  hash) → curate all upcoming events *as Sam* → reconcile "going" events onto Google
-  Calendar → send the digest email → stamp the run.
+- **Claude Code scout** (scheduled via Windows Task Scheduler: daily + at logon, runs
+  `claude` headless per `runner/SCOUT.md`): reads context (`npm run context`) →
+  web-searches for new events *itself* → ranks them *as Sam* → writes
+  `runner/scout-events.json` → `npm run ingest` persists them, reconciles "going" events
+  onto Google Calendar, sends the digest, and stamps the run. No model API key.
 - **Vercel app** (Next.js 16, Server Actions): auth-gated feed + month calendar, event
   detail with the verdict, attendance ✓/✗, notes, booking links, live stats.
 - **Postgres** (Neon in prod, Docker locally): `events`, `curations` (history), `attendance`,
@@ -38,8 +39,9 @@ Three components share one Postgres database; the runner and app never talk dire
 
 Runs with the `profile` persona + full attendance/notes history. Scores each candidate
 0-100 for *"will this get Sam a job, referral, or useful connection?"*, keeps/drops,
-writes a "why go" + expected payoff, and refreshes a learned-preferences summary. Claude
-when `ANTHROPIC_API_KEY` is set; a transparent keyword/region/history heuristic otherwise.
+writes a "why go" + expected payoff, and refreshes a learned-preferences summary. This is
+Claude Code itself (the scout) - no API key; a keyword heuristic remains only as an
+offline fallback for the seed.
 
 ### Feedback loop
 
@@ -63,8 +65,8 @@ after downtime fully backfills the gap.
 
 ## Honest boundaries
 
-- Live discovery / good curation needs `ANTHROPIC_API_KEY`; without it the runner uses
-  mock discovery + heuristic curation so the pipeline still runs.
+- Discovery + curation are performed by the scheduled Claude Code scout (no API key) -
+  see `runner/SCOUT.md`. A keyword heuristic exists only as an offline seed fallback.
 - Google Calendar push + Gmail send need a Google OAuth grant (`npm run google:auth`).
 - "Two-way" Google Calendar was scoped down to a one-way push; attendance stays in-app
   because personal Google Calendar events have no attendance concept to read back.
