@@ -13,10 +13,15 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
     e.preventDefault();
     setPending(true);
     setError(null);
-    const res = await signIn('dev', { password, redirect: false, callbackUrl: '/' });
+    const res = await signIn('dev', { password, redirect: false });
     setPending(false);
-    if (res?.error) setError('Wrong password.');
-    else window.location.href = res?.url ?? '/';
+    if (res?.error) {
+      setError('Wrong password.');
+    } else {
+      // Always land on this app's own origin — never trust res.url, which can
+      // resolve to the wrong host (e.g. localhost) behind Vercel's proxy.
+      window.location.href = '/';
+    }
   }
 
   return (
