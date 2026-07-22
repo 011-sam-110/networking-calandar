@@ -45,3 +45,6 @@ runner/scout-events.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+.env*
